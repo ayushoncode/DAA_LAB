@@ -1,0 +1,69 @@
+#include<stdio.h>
+#include<stdlib.h>
+#include<time.h>
+
+void countSort(int a[], int n, int k){
+    int b[10000];
+    int c[101];
+    
+    for(int i=0;i<=k;i++){
+        c[i]=0;
+    }
+    
+    for(int i=1;i<=n;i++){
+        c[a[i]]++;
+    }
+    
+    for(int i=1;i<=k;i++){
+        c[i]=c[i]+c[i-1];
+    }
+    
+    for(int i=n;i>=1;i--){
+        b[c[a[i]]]=a[i];
+        c[a[i]]--;
+    }
+    
+    for(int j=1;j<=n;j++)
+        a[j]=b[j];
+}
+
+int main(){
+   int a[1000];
+   int n;
+   int max;
+   clock_t start,end;
+   
+   printf("Enter n:");
+   scanf("%d",&n);
+   
+   srand(time(0));
+   
+    printf("\nRandomly Generated Inputs:\n");
+    
+    for(int i=1;i<=n;i++){
+        a[i]=rand()%100;
+        printf("%d ",a[i]);
+    }
+    
+    max=a[1];
+    for(int i=2;i<=n;i++){
+        if(a[i]>max){
+            max=a[i];
+        }
+    }
+    start=clock();
+    
+    countSort(a,n,max);
+    
+    end = clock();
+    
+     printf("\nSorted List:\n");
+     for(int i=1;i<=n;i++){
+         printf("%d ",a[i]);
+     }
+     float gap=(float)(end-start)/CLOCKS_PER_SEC;
+      printf("\nAlgorithm Time: %f seconds", gap);
+
+    return 0;
+   
+}
