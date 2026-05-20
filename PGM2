@@ -1,0 +1,84 @@
+#include<stdio.h>
+#include<stdlib.h>
+#include<time.h>
+
+void swap(int *a, int *b);
+int partition(int arr[], int s, int e);
+void quicksort(int arr[], int s, int e);
+
+void quicksort(int arr[], int s, int e)
+{
+    if(s < e)
+    {
+        int idx = partition(arr, s, e);
+
+        quicksort(arr, s, idx - 1);
+        quicksort(arr, idx + 1, e);
+    }
+}
+
+int partition(int arr[], int s, int e)
+{
+    int random = s + rand() % (e - s + 1);
+    swap(&arr[random], &arr[e]);
+
+    int pivot = arr[e];
+    int i = s - 1;
+
+    for(int j = s; j < e; j++)
+    {
+        if(arr[j] <= pivot)
+        {
+            i++;
+            swap(&arr[i], &arr[j]);
+        }
+    }
+
+    i++;
+    swap(&arr[i], &arr[e]);
+
+    return i;
+}
+
+void swap(int *a, int *b)
+{
+    int temp = *a;
+    *a = *b;
+    *b = temp;
+}
+
+int main()
+{
+    int a[100000], n;
+    clock_t start, end;
+
+    printf("Enter size n: ");
+    scanf("%d", &n);
+
+    srand(time(0));
+
+    printf("\nRandomly Generated Inputs:\n");
+
+    for(int i = 0; i < n; i++)
+    {
+        a[i] = rand() % 1000;
+        printf("%d ", a[i]);
+    }
+
+    start = clock();
+
+    quicksort(a, 0, n - 1);
+
+    end = clock();
+
+    printf("\nRandom Quick Sort List:\n");
+
+    for(int i = 0; i < n; i++)
+        printf("%d ", a[i]);
+
+    double gaptime = (double)(end - start) / CLOCKS_PER_SEC;
+
+    printf("\nRandom Quick Sort Time: %lf seconds", gaptime);
+
+    return 0;
+}
