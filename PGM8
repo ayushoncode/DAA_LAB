@@ -1,0 +1,49 @@
+#include<stdio.h>
+#include<limits.h>
+int dp[10][10];
+int bracket[10][10];
+
+int matrixchain(int arr[],int n){
+    for(int i=1;i<=n;i++){
+        dp[i][i]=0;
+        for(int len=2;len<=n;len++){
+            for(int i=1;i<=n-len+1;i++){
+                int j=i+len-1;
+                dp[i][j]=INT_MAX;
+                for(int k=i;k<j;k++){
+                    int cost=dp[i][k]+dp[k+1][j]+arr[i-1]*arr[k]*arr[j];
+                    if(cost<dp[i][j]){
+                        dp[i][j]=cost;
+                        bracket[i][j]=k;
+                    }
+                }
+            }
+        }
+    }
+    return dp[1][n];
+}
+
+void printOrder(int i,int j){
+    if(i==j){
+        printf("A%d",i);
+        return;
+    }
+    printf("(");
+    printOrder(i,bracket[i][j]);
+    printOrder(bracket[i][j]+1,j);
+    
+     printf(")");
+}
+
+int main(){
+    int arr[]={5,10,3,12,5};
+    int n=4;
+    int result=matrixchain(arr,n);
+     printf("Minimum Scalar Multiplications = %d\n", result);
+
+    printf("Optimal Order: ");
+    printOrder(1, n);
+
+    return 0;
+}
+
