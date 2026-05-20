@@ -1,0 +1,66 @@
+#include<stdio.h>
+#include<string.h>
+
+int max(int a,int b){
+    if(a>b) return a;
+    
+    return b;
+}
+
+void lcs(char s1[],char s2[]){
+    int n=strlen(s1);
+    int m=strlen(s2);
+    int dp[100][100];
+    
+    for(int i=0;i<=n;i++){
+        for(int j=0;j<=m;j++){
+            if(i==0||j==0){
+                dp[i][j]=0;
+            }
+            else if(s1[i-1]==s2[j-1]){
+                dp[i][j]=1+dp[i-1][j-1];
+            }
+            else{
+                dp[i][j]=max(dp[i-1][j],dp[i][j-1]);
+            }
+        }
+    }
+    
+    printf("Length of LCS = %d\n", dp[n][m]);
+    
+    int i=n;
+    int j=m;
+    char ans[100];
+    int index=dp[n][m];
+    ans[index]='\0';
+    
+    while(i>0&&j>0){
+        if(s1[i-1]==s2[j-1]){
+            ans[index-1]=s1[i-1];
+            i--;
+            j--;
+            index--;
+        }
+        else if(dp[i-1][j]>dp[i][j-1]){
+            i--;
+        }
+        else{
+            j--;
+        }
+    }
+      printf("Longest Common Subsequence: %s", ans);
+}
+
+
+int main(){
+    char s1[100],s2[100];
+    
+        printf("Enter First String: ");
+    scanf("%s", s1);
+
+    printf("Enter Second String: ");
+    scanf("%s", s2);
+    
+    lcs(s1, s2);
+    
+}
