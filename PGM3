@@ -1,0 +1,73 @@
+
+#include <stdio.h>
+
+int heap[100];
+int size=0;
+void swap(int *a,int *b){
+    int temp=*a;
+    *a=*b;
+    *b=temp;
+}
+
+void insert(int value){
+    size++;
+    heap[size]=value;
+    
+    int i=size;
+    int parent =i/2;
+    
+    while(i>1&&heap[i]>heap[parent]){
+        swap(&heap[i],&heap[parent]);
+        i=parent;
+        parent =i/2;
+    }
+}
+
+void heapifyDown(int i){
+    int left=2*i;
+    int right=2*i+1;
+    int largest =i;
+    
+    if(left<=size && heap[left]>heap[largest]){
+        largest =left;
+    }
+    if(right<=size&&heap[right]>heap[largest]){
+        largest=right;
+    }
+    
+    if(largest!=i){
+        swap(&heap[largest],&heap[i]);
+        heapifyDown(largest);
+    }
+    
+}
+
+int delete(){
+    int mx =heap[1];
+    heap[1]=heap[size];
+    size--;
+    
+    heapifyDown(1);
+    return mx;
+}
+
+void display(){
+    for(int i=1;i<=size;i++){
+        printf("%d ",heap[i]);
+    }
+}
+
+int main()
+{
+    insert(40);
+    insert(20);
+    insert(60);
+    insert(80);
+    insert(10);
+    printf("Priority Queue:\n");
+    display();
+  printf("\nHighest Priority Passenger: %d", delete());
+  
+    printf("\nAfter Boarding:\n");
+    display();
+}
