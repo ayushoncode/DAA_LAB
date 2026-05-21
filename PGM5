@@ -1,0 +1,91 @@
+#include<stdio.h>
+#include<limits.h>
+#include<string.h>
+#include<limits.h>
+
+void sort(int a[],int l,int h){
+    for(int i=l;i<h;i++){
+        for(int j=i+1;j>l;j--){
+            if(a[j-1]>a[j]){
+                int temp=a[j-1];
+                a[j-1]=a[j];
+                a[j]=temp;
+            }
+            else{
+                break;
+            }
+        }
+    }
+}
+
+int findmedian(int a[],int l,int n){
+    sort(a,l,l+n-1);
+    return a[l+n/2];
+}
+int part(int a[],int low,int high,int pivot){
+    int i,j;
+    for(i=low;i<=high;i++){
+        if(a[i]==pivot){
+            int temp=a[i];
+            a[i]=a[low];
+            a[low]=temp;
+            break;
+        }
+    }
+    pivot=a[low];
+    i=low+1;
+    j=high;
+    
+    while(i<j){
+        while(i<=high&&a[i]<=pivot) i++;
+        while(j>=low&&a[j]>pivot) j--;
+    }
+    
+    if(i<j){
+        int temp=a[i];
+        a[i]=a[j];
+        a[j]=temp;
+    }
+    
+    int temp=a[low];
+    a[low]=a[j];
+    a[j]=temp;
+    
+    return j;
+    
+}
+
+int select(int a[],int l,int h,int k){
+    if(l==h) return a[l];
+    int n=h-l+1;
+    int medians[10];
+    int count =0;
+    for(int i=0;i<n/5;i++){
+        medians[count++]=findmedian(a,l+i*5,5);
+    }
+    if(n%5!=0){
+        medians[count++]=findmedian(a,l+(n/5)*5,n%5);
+    }
+    int pivot;
+    if(count==1) pivot=medians[0];
+    else{
+        pivot=select(medians,0,count-1,count/2);
+    }
+        int pos=part(a,l,h,pivot);
+        int rank=pos-l+1;
+        
+        if(rank==k) return a[pos];
+        else if(rank>k) return select(a,l,pos-1,k);
+        else return(a,pos+1,h,k-rank);
+        
+    
+    }
+int main(){
+    int A[]={7,3,5,12,4,19,26};
+    int n=7;
+    int median = select(A, 0, n-1, (n+1)/2);
+
+    printf("Median waiting time = %d", median);
+
+    return 0;
+}
