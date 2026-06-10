@@ -40,15 +40,19 @@ public class HuffmanCoding {
         while (true) {
 
             int min1 = findMin(arr, size);
+            if (min1 == -1)
+                return null;
+
             Node left = arr[min1];
             arr[min1] = null;
 
             int min2 = findMin(arr, size);
+
+            if (min2 == -1)
+                return left;      // only one node remains
+
             Node right = arr[min2];
             arr[min2] = null;
-
-            if (right == null)
-                return left;
 
             Node parent = new Node('$', left.freq + right.freq);
             parent.left = left;
