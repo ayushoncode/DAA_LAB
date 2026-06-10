@@ -1,0 +1,64 @@
+#include <stdio.h>
+
+#define n 5
+
+int time = 0;
+int visited[10], d[10], f[10];
+
+// DFS Traversal
+void DFS_Traverse(int g[][n], int u)
+{
+    visited[u] = 1;
+    time = time + 1;
+    d[u] = time;
+
+    for (int v = 0; v < n; v++)
+    {
+        if (g[u][v] == 1 && visited[v] == 0)
+        {
+            DFS_Traverse(g, v);
+        }
+    }
+
+    time = time + 1;
+    f[u] = time;
+
+    // Print in finishing (pop) order
+    printf("%d --> ", u);
+}
+
+// DFS Function
+void DFS(int g[][n])
+{
+    for (int i = 0; i < n; i++)
+        visited[i] = 0;
+
+    for (int u = 0; u < n; u++)
+    {
+        if (visited[u] == 0)
+            DFS_Traverse(g, u);
+    }
+}
+
+int main()
+{
+    int g[n][n] = {
+        {0, 1, 1, 0, 0},
+        {0, 0, 0, 1, 1},
+        {0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0}
+    };
+
+    printf("DFS Traversal Order (Pop Order):\n");
+    DFS(g);
+
+    printf("\n\nVertex\tDiscovery\tFinish\n");
+
+    for (int i = 0; i < n; i++)
+    {
+        printf("%d\t%d\t\t%d\n", i, d[i], f[i]);
+    }
+
+    return 0;
+}
