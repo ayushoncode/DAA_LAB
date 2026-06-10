@@ -1,91 +1,172 @@
-#include<stdio.h>
-#include<limits.h>
-#include<string.h>
-#include<limits.h>
+#include <stdio.h>      // Standard input/output library
 
-void sort(int a[],int l,int h){
-    for(int i=l;i<h;i++){
-        for(int j=i+1;j>l;j--){
-            if(a[j-1]>a[j]){
-                int temp=a[j-1];
-                a[j-1]=a[j];
-                a[j]=temp;
-            }
-            else{
-                break;
-            }
+// Function to swap two integers
+void swap(int *a, int *b)
+{
+    int temp = *a;      // Store first value in temp
+    *a = *b;            // Copy second value to first
+    *b = temp;          // Copy temp to second
+}
+
+// Insertion Sort for sorting small groups (size <= 5)
+void sort(int A[], int low, int high)
+{
+    // Traverse from second element to last
+    for (int i = low + 1; i <= high; i++)
+    {
+        int key = A[i];         // Element to be inserted
+        int j = i - 1;          // Previous index
+
+        // Shift larger elements to the right
+        while (j >= low && A[j] > key)
+        {
+            A[j + 1] = A[j];
+            j--;
         }
+
+        // Insert key at correct position
+        A[j + 1] = key;
     }
 }
 
-int findmedian(int a[],int l,int n){
-    sort(a,l,l+n-1);
-    return a[l+n/2];
+// Function to find median of a small group
+int findMedian(int A[], int low, int n)
+{
+    // Sort the group
+    sort(A, low, low + n - 1);
+
+    // Return middle element
+    return A[low + n / 2];
 }
-int part(int a[],int low,int high,int pivot){
-    int i,j;
-    for(i=low;i<=high;i++){
-        if(a[i]==pivot){
-            int temp=a[i];
-            a[i]=a[low];
-            a[low]=temp;
+
+// Partition the array around the given pivot
+int partition(int A[], int low, int high, int pivot)
+{
+    int i, j;
+
+    // Find pivot and move it to first position
+    for (i = low; i <= high; i++)
+    {
+        if (A[i] == pivot)
+        {
+            swap(&A[i], &A[low]);
             break;
         }
     }
-    pivot=a[low];
-    i=low+1;
-    j=high;
-    
-    while(i<j){
-        while(i<=high&&a[i]<=pivot) i++;
-        while(j>=low&&a[j]>pivot) j--;
+
+    // Set pivot as first element
+    pivot = A[low];
+
+    i = low + 1;    // Left pointer
+    j = high;       // Right pointer
+
+    // Rearrange elements
+    while (i <= j)
+    {
+        // Move left pointer until element > pivot
+        while (i <= high && A[i] <= pivot)
+            i++;
+
+        // Move right pointer until element <= pivot
+        while (j >= low && A[j] > pivot)
+            j--;
+
+        // Swap misplaced elements
+        if (i < j)
+            swap(&A[i], &A[j]);
     }
-    
-    if(i<j){
-        int temp=a[i];
-        a[i]=a[j];
-        a[j]=temp;
-    }
-    
-    int temp=a[low];
-    a[low]=a[j];
-    a[j]=temp;
-    
+
+    // Place pivot in its correct position
+    swap(&A[low], &A[j]);
+
+    // Return pivot index
     return j;
-    
 }
 
-int select(int a[],int l,int h,int k){
-    if(l==h) return a[l];
-    int n=h-l+1;
-    int medians[10];
-    int count =0;
-    for(int i=0;i<n/5;i++){
-        medians[count++]=findmedian(a,l+i*5,5);
-    }
-    if(n%5!=0){
-        medians[count++]=findmedian(a,l+(n/5)*5,n%5);
-    }
-    int pivot;
-    if(count==1) pivot=medians[0];
-    else{
-        pivot=select(medians,0,count-1,count/2);
-    }
-        int pos=part(a,l,h,pivot);
-        int rank=pos-l+1;
-        
-        if(rank==k) return a[pos];
-        else if(rank>k) return select(a,l,pos-1,k);
-        else return(a,pos+1,h,k-rank);
-        
-    
-    }
-int main(){
-    int A[]={7,3,5,12,4,19,26};
-    int n=7;
-    int median = select(A, 0, n-1, (n+1)/2);
+// SELECT Algorithm (Median of Medians)
+int select(int A[], int low, int high, int i)
+{
+    // Base case: only one element
+    if (low == high)
+        return A[low];
 
-    printf("Median waiting time = %d", median);
+    // Number of elements in current subarray
+    int n = high - low + 1;
+
+    // Number of groups of size 5
+    int numGroups = (n + 4) / 5;
+
+    // Array to store medians
+    int medians[numGroups];
+
+    // Step 1: Find median of every group
+    for (int j = 0; j < numGroups; j++)
+    {
+        // Starting index of current group
+        int start = low + j * 5;
+
+        // Assume group size is 5
+        int size = 5;
+
+        // Last group may contain fewer than 5 elements
+        if (start + 5 > high + 1)
+            size = high - start + 1;
+
+        // Store median of current group
+        medians[j] = findMedian(A, start, size);
+    }
+
+    int pivot;
+
+    // Step 2: Find median of medians
+    if (numGroups == 1)
+        pivot = medians[0];
+    else
+        pivot = select(medians, 0, numGroups - 1, (numGroups + 1) / 2);
+
+    // Step 3: Partition original array around pivot
+    int q = partition(A, low, high, pivot);
+
+    // Rank of pivot
+    int k = q - low + 1;
+
+    // Step 4: Check if pivot is the required element
+    if (i == k)
+        return A[q];
+
+    // Search left subarray
+    else if (i < k)
+        return select(A, low, q - 1, i);
+
+    // Search right subarray
+    else
+        return select(A, q + 1, high, i - k);
+}
+
+int main()
+{
+    int n;
+
+    // Read number of elements
+    printf("Enter number of patient waiting times: ");
+    scanf("%d", &n);
+
+    // Declare array
+    int A[n];
+
+    // Read array elements
+    printf("Enter waiting times:\n");
+    for (int i = 0; i < n; i++)
+        scanf("%d", &A[i]);
+
+    // Position of median (1-based indexing)
+    int pos = (n + 1) / 2;
+
+    // Find median using SELECT algorithm
+    int median = select(A, 0, n - 1, pos);
+
+    // Display result
+    printf("Median waiting time = %d\n", median);
 
     return 0;
 }
