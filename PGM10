@@ -12,55 +12,84 @@ class Node {
 
 public class HuffmanCoding {
 
-    // Find index of minimum frequency node
-    static int findMin(Node[] arr, int size) {
-        int minIndex = -1;
+    static Node[] Q = new Node[100]; // Min Heap
+    static int heapSize = 0;
 
-        for (int i = 0; i < size; i++) {
-            if (arr[i] != null) {
-                if (minIndex == -1 || arr[i].freq < arr[minIndex].freq) {
-                    minIndex = i;
-                }
-            }
+    // Swap two nodes
+    static void swap(int i, int j) {
+        Node temp = Q[i];
+        Q[i] = Q[j];
+        Q[j] = temp;
+    }
+
+    // Heapify Up
+    static void heapifyUp(int i) {
+        int parent = i / 2;
+
+        while (i > 1 && Q[i].freq < Q[parent].freq) {
+            swap(i, parent);
+            i = parent;
+            parent = i / 2;
         }
-        return minIndex;
+    }
+
+    // Insert into Min Heap
+    static void insertQ(Node node) {
+        heapSize++;
+        Q[heapSize] = node;
+        heapifyUp(heapSize);
+    }
+
+    // Heapify Down
+    static void heapifyDown(int i) {
+        int left = 2 * i;
+        int right = 2 * i + 1;
+        int smallest = i;
+
+        if (left <= heapSize && Q[left].freq < Q[smallest].freq)
+            smallest = left;
+
+        if (right <= heapSize && Q[right].freq < Q[smallest].freq)
+            smallest = right;
+
+        if (smallest != i) {
+            swap(i, smallest);
+            heapifyDown(smallest);
+        }
+    }
+
+    // Extract Minimum
+    static Node extractMinQ() {
+        Node x = Q[1];
+        swap(1, heapSize);
+        heapSize--;
+        heapifyDown(1);
+        return x;
     }
 
     // Build Huffman Tree
-    static Node buildTree(char[] chars, int[] freq, int n) {
+    static Node huffman(char[] data, int[] freq, int n) {
 
-        Node[] arr = new Node[2 * n];
-
+        // Insert all leaf nodes
         for (int i = 0; i < n; i++) {
-            arr[i] = new Node(chars[i], freq[i]);
+            Node leaf = new Node(data[i], freq[i]);
+            insertQ(leaf);
         }
 
-        int size = n;
+        // Build Huffman Tree
+        for (int i = 1; i <= n - 1; i++) {
 
-        while (true) {
+            Node x = extractMinQ();
+            Node y = extractMinQ();
 
-            int min1 = findMin(arr, size);
-            if (min1 == -1)
-                return null;
+            Node z = new Node('$', x.freq + y.freq);
+            z.left = x;
+            z.right = y;
 
-            Node left = arr[min1];
-            arr[min1] = null;
-
-            int min2 = findMin(arr, size);
-
-            if (min2 == -1)
-                return left;      // only one node remains
-
-            Node right = arr[min2];
-            arr[min2] = null;
-
-            Node parent = new Node('$', left.freq + right.freq);
-            parent.left = left;
-            parent.right = right;
-
-            arr[size] = parent;
-            size++;
+            insertQ(z);
         }
+
+        return extractMinQ();
     }
 
     // Print Huffman Codes
@@ -80,13 +109,15 @@ public class HuffmanCoding {
 
     public static void main(String[] args) {
 
-        char chars[] = { 'A', 'B', 'C', 'D', 'E', 'F' };
-        int freq[] = { 5, 9, 12, 13, 16, 45 };
-        int n = chars.length;
+        char[] data = { 'A', 'B', 'C', 'D', 'E', 'F' };
+        int[] freq = { 45, 13, 12, 16, 9, 5 };
 
-        Node root = buildTree(chars, freq, n);
+        int n = data.length;
+
+        Node root = huffman(data, freq, n);
 
         System.out.println("Huffman Codes:");
+
         printCodes(root, "");
     }
 }
