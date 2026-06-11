@@ -1,0 +1,82 @@
+#include <stdio.h>
+
+#define INF 999
+#define n 5
+
+int dist[n];
+int visited[n];
+
+// Find vertex with minimum distance
+int ExtractMin(int dist[], int n)
+{
+    int min = INF;
+    int u = -1;
+
+    for (int i = 0; i < n; i++)
+    {
+        if (visited[i] == 0 && dist[i] < min)
+        {
+            min = dist[i];
+            u = i;
+        }
+    }
+
+    return u;
+}
+
+// Dijkstra Algorithm
+void dijkstra(int w[n][n], int n, int source)
+{
+    for (int i = 0; i < n; i++)
+    {
+        dist[i] = INF;
+        visited[i] = 0;
+    }
+
+    dist[source] = 0;
+
+    int ne = 0;
+
+    while (ne != n - 1)
+    {
+        int u = ExtractMin(dist, n);
+
+        visited[u] = 1;
+        ne++;
+
+        for (int v = 0; v < n; v++)
+        {
+            if (visited[v] == 0 &&
+                w[u][v] != INF &&
+                dist[u] + w[u][v] < dist[v])
+            {
+                dist[v] = dist[u] + w[u][v];
+            }
+        }
+    }
+}
+
+int main()
+{
+    int w[n][n] =
+    {
+        {0, 80, 20, 999, 999},
+        {80, 0, 10, 30, 999},
+        {20, 10, 0, 90, 60},
+        {999, 30, 90, 0, 10},
+        {999, 999, 60, 10, 0}
+    };
+
+    int source = 0;
+
+    dijkstra(w, n, source);
+
+    printf("Shortest Distances:\n");
+
+    for (int i = 0; i < n; i++)
+    {
+        printf("%d --> %d = %d\n", source, i, dist[i]);
+    }
+
+    return 0;
+}
