@@ -1,0 +1,117 @@
+#include <stdio.h>
+
+#define n 6
+
+int queue[n], front, rear;
+
+// Function to find minimum of two numbers
+int min(int a, int b)
+{
+    return (a < b) ? a : b;
+}
+
+// Queue functions
+void enqueue(int x)
+{
+    queue[rear++] = x;
+}
+
+int dequeue()
+{
+    return queue[front++];
+}
+
+// BFS to find augmenting path
+int bfs(int rGraph[n][n], int s, int t, int parent[])
+{
+    int visited[n];
+
+    for (int i = 0; i < n; i++)
+        visited[i] = 0;
+
+    front = rear = 0;
+
+    enqueue(s);
+    visited[s] = 1;
+    parent[s] = -1;
+
+    while (front < rear)
+    {
+        int u = dequeue();
+
+        for (int v = 0; v < n; v++)
+        {
+            if (visited[v] == 0 && rGraph[u][v] > 0)
+            {
+                enqueue(v);
+                visited[v] = 1;
+                parent[v] = u;
+            }
+        }
+    }
+
+    return visited[t];
+}
+
+// Edmonds-Karp Algorithm
+int EdmondsKarp(int graph[n][n], int s, int t)
+{
+    int rGraph[n][n];
+
+    // Copy graph into residual graph
+    for (int i = 0; i < n; i++)
+    {
+        for (int j = 0; j < n; j++)
+        {
+            rGraph[i][j] = graph[i][j];
+        }
+    }
+
+    int parent[n];
+    int max_flow = 0;
+
+    while (bfs(rGraph, s, t, parent))
+    {
+        int path_flow = 9999;
+
+        // Find minimum capacity in the path
+        for (int v = t; v != s; v = parent[v])
+        {
+            int u = parent[v];
+            path_flow = min(path_flow, rGraph[u][v]);
+        }
+
+        // Update residual graph
+        for (int v = t; v != s; v = parent[v])
+        {
+            int u = parent[v];
+            rGraph[u][v] -= path_flow;
+            rGraph[v][u] += path_flow;
+        }
+
+        max_flow += path_flow;
+    }
+
+    return max_flow;
+}
+
+// Main function
+int main()
+{
+    int graph[n][n] =
+    {
+        {0,16,13,0,0,0},
+        {0,0,0,12,0,0},
+        {0,4,0,0,14,0},
+        {0,0,9,0,0,20},
+        {0,0,0,7,0,4},
+        {0,0,0,0,0,0}
+    };
+
+    int source = 0;
+    int sink = 5;
+
+    printf("Maximum Flow = %d\n", EdmondsKarp(graph, source, sink));
+
+    return 0;
+}
