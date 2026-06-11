@@ -1,0 +1,62 @@
+import java.util.PriorityQueue;
+
+class Node implements Comparable<Node> {
+    char ch;
+    int freq;
+    Node left, right;
+
+    Node(char ch, int freq) {
+        this.ch = ch;
+        this.freq = freq;
+    }
+
+    public int compareTo(Node other) {
+        return this.freq - other.freq;
+    }
+}
+
+public class HuffmanCoding {
+
+    static void printCodes(Node root, String code) {
+        if (root == null)
+            return;
+
+        if (root.left == null && root.right == null) {
+            System.out.println(root.ch + " : " + code);
+            return;
+        }
+
+        printCodes(root.left, code + "0");
+        printCodes(root.right, code + "1");
+    }
+
+    public static void main(String[] args) {
+
+        char[] data = {'A', 'B', 'C', 'D', 'E', 'F'};
+        int[] freq = {45, 13, 12, 16, 9, 5};
+
+        PriorityQueue<Node> pq = new PriorityQueue<>();
+
+        // Insert all characters
+        for (int i = 0; i < data.length; i++) {
+            pq.add(new Node(data[i], freq[i]));
+        }
+
+        // Build Huffman Tree
+        while (pq.size() > 1) {
+            Node left = pq.poll();
+            Node right = pq.poll();
+
+            Node parent = new Node('$', left.freq + right.freq);
+            parent.left = left;
+            parent.right = right;
+
+            pq.add(parent);
+        }
+
+        Node root = pq.poll();
+
+        System.out.println("Huffman Codes:");
+        printCodes(root, "");
+    }
+}
